@@ -1,0 +1,318 @@
+<<< "Assignment 3 Techno Sequence" >>>;
+
+// create and initialise a master fader, and a sawtooth oscillator
+Gain master => dac;
+1.0 => master.gain;
+SawOsc saw => Pan2 pan => master;
+0.2 => float sawGain;
+
+// create and initialise the sound buffers, using an array of strings
+[
+    me.dir() + "/audio/kick_02.wav",
+    me.dir() + "/audio/snare_01.wav",
+    me.dir() + "/audio/hihat_01.wav",
+    me.dir() + "/audio/stereo_fx_03.wav"
+] @=> string soundFiles[];
+
+SndBuf kick => master;
+SndBuf snare => master;
+SndBuf hats => master;
+SndBuf2 fx => master;
+
+soundFiles[0] => kick.read;
+soundFiles[1] => snare.read;
+soundFiles[2] => hats.read;
+soundFiles[3] => fx.read;
+
+kick.samples() => kick.pos;
+snare.samples() => snare.pos;
+hats.samples() => hats.pos;
+fx.samples() => fx.pos;
+
+0.6 => kick.gain;
+0.2 => hats.gain;
+
+// allocate some chromatic intervals
+// these can be used to set a sound buffer rate
+1.0594630948 => float c12r2;
+[
+    0.0,
+    1.0 / (c12r2 * c12r2),
+    1.0 / (c12r2 * c12r2 * c12r2 * c12r2),
+    1.0 / (c12r2 * c12r2 * c12r2 * c12r2 * c12r2 * c12r2)
+] @=> float s[];
+
+
+// allocate the available notes
+// D2, E2, F2, G2, A2, B2, C3
+// D3, E3, F3, G3, A3, B3, C4
+// D4, E4, F4, G4, A4, B4, C5
+[
+    38.0, 40.0, 41.0, 43.0, 45.0, 47.0, 48.0,
+    50.0, 52.0, 53.0, 55.0, 57.0, 59.0, 60.0,
+    62.0, 64.0, 65.0, 67.0, 69.0, 71.0, 72.0
+] @=> float n[];
+ 
+ // define a rest note value
+-1 => float rest;
+
+// allocate some note lengths
+120.0 => float bpm; // beats per minute
+4 => int bib; // beats in a bar
+// quaver, crotchet, minim, semibreve, breve
+[7.5/bpm, 15/bpm, 30/bpm, 60/bpm, 120/bpm] @=> float l[];
+
+// allocate indices for sound generators (oscillators and sound buffers)
+[0.0, 1.0, 2.0, 3.0, 4.0] @=> float g[];
+
+// create a sequence of events
+// each event is defined by three numbers:
+// [0] the MIDI note number (ignored for a sound buffer)
+// [1] the rate (randomised for a sound buffer if zero)
+// [2] the index of the sound generator
+[
+ // bar 1
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[5], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[1], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[3], l[1], g[0]], [rest, l[1], g[0]],
+ // bar 2
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[5], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[3], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+  // bar 3
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[12], l[0], g[0]], [rest, l[0], g[0]], [n[11], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[8], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[10], l[1], g[0]], [rest, l[1], g[0]],
+  // bar 4
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[12], l[0], g[0]], [rest, l[0], g[0]], [n[11], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[18], l[0], g[0]], [rest, l[0], g[0]], [n[17], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[18], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+ // bar 5
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[2], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[1], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[3], l[1], g[0]], [rest, l[1], g[0]],
+  // bar 6
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[5], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[3], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+ // bar 7
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[0], g[0]], [rest, l[0], g[0]], [n[11], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[9], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[8], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[10], l[1], g[0]], [rest, l[1], g[0]],
+  // bar 8
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[12], l[0], g[0]], [rest, l[0], g[0]], [n[11], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[3], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+  // bar 9
+ [1.0, s[3], g[4]], [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[5], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[1], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[3], l[1], g[0]], [rest, l[1], g[0]],
+ // bar 10
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[5], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[3], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+ // bar 11
+ [1.0, s[2], g[4]], [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[12], l[0], g[0]], [rest, l[0], g[0]], [n[11], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[8], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[10], l[1], g[0]], [rest, l[1], g[0]],
+ // bar 12
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[12], l[0], g[0]], [rest, l[0], g[0]], [n[11], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[18], l[0], g[0]], [rest, l[0], g[0]], [n[17], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[18], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+ // bar 13
+ [1.0, s[3], g[4]], [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[2], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[1], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[3], l[1], g[0]], [rest, l[1], g[0]],
+ // bar 14
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [n[5], l[0], g[0]], [rest, l[0], g[0]], [n[4], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[1]], [n[3], l[2], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, 0.0, g[3]], [1.0, 0.0, g[2]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [n[3], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, 0.0, g[3]], [n[4], l[0], g[0]], [rest, l[0], g[0]], [rest, l[1], g[0]],
+  // bar 15
+ [1.0, s[0], g[4]], [1.0, -4.0, g[3]], [1.0, -1.0, g[1]], [n[10], l[2], g[0]],
+ [1.0, -4.0, g[3]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, -4.0, g[3]], [1.0, -1.0, g[2]], [n[11], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, -4.0, g[3]], [n[10], l[0], g[0]], [rest, l[0], g[0]], [n[10], l[0], g[0]], [rest, l[0], g[0]],
+ [1.0, -4.0, g[3]], [1.0, -1.0, g[1]], [n[11], l[2], g[0]],
+ [1.0, -4.0, g[3]], [n[10], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, -4.0, g[3]], [1.0, -1.0, g[2]], [n[18], l[1], g[0]], [rest, l[1], g[0]],
+ [1.0, -4.0, g[3]], [n[18], l[1], g[0]], [rest, l[1], g[0]]
+ ] @=> float seq[][];
+
+// loop through the sequence
+now => time start;
+for(0 => int i; i < seq.cap(); i++)
+{
+    if(seq[i][2] == 0.0)
+    {
+        // use the [0] sound generator
+        if(seq[i][0] == -1)
+        {
+            // configure a rest
+            0 => saw.gain;
+        }
+        else
+        {
+            // configure a note, randomly panned
+            sawGain => saw.gain;
+            Std.mtof(seq[i][0]) => saw.freq;
+            Math.random2f(-1, 1) => pan.pan;
+        }
+        
+        // play the note
+        seq[i][1]::second => now;
+    }
+    else
+    {
+        if(seq[i][2] == 1.0)
+        {
+            // use the [1] sound generator
+            if(seq[i][1] > 0.0)
+            {
+                // play forwards at the defined rate
+                seq[i][1] => kick.rate;                
+                0 => kick.pos;
+            }
+            else if(seq[i][1] == 0.0)
+            {
+                // play forwards at a random rate           
+                Math.random2f(.8, 1.2) => kick.rate;
+                0 => kick.pos;
+            }
+            else
+            {
+                // play backwards at the defined rate
+                seq[i][1] => kick.rate;
+                kick.samples() => kick.pos;
+            }
+        }
+        
+        if(seq[i][2] == 2.0)
+        {
+            // use the [2] sound generator
+            if(seq[i][1] > 0.0)
+            {
+                seq[i][1] => snare.rate;                
+                0 => snare.pos;
+            }
+            else if(seq[i][1] == 0.0)
+            {
+                Math.random2f(.8, 1.2) => snare.rate;
+                0 => snare.pos;
+            }
+            else
+            {
+                seq[i][1] => snare.rate;
+                snare.samples() => snare.pos;                
+            }
+        }
+         
+        if(seq[i][2] == 3.0)
+        {
+            // use the [3] sound generator
+            if(seq[i][1] > 0.0)
+            {
+                seq[i][1] => hats.rate;                
+                0 => hats.pos;
+            }
+            else if(seq[i][1] == 0.0)
+            {
+                Math.random2f(.8, 1.2) => hats.rate;
+                0 => hats.pos;               
+            }
+            else
+            {
+                seq[i][1] => hats.rate;
+                hats.samples() => hats.pos;                
+            }
+        }
+        
+        if(seq[i][2] == 4.0)
+        {
+            // use the [4] sound generator
+            if(seq[i][1] > 0.0)
+            {
+                seq[i][1] => fx.rate;
+                0 => fx.pos;
+            }
+            else
+            {
+                seq[i][1] => fx.rate;
+                fx.samples() => fx.pos;             
+            }
+        }
+    }
+        
+    // print the note properties
+    now - start => dur elapsed;    
+    <<< "bar=" + i / bib, "beat=" + i % bib, "note=" + seq[i][0], "time=", elapsed / second >>>;
+}Enter file contents here
