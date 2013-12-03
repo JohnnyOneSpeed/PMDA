@@ -1,0 +1,782 @@
+<<< "Assignment 4 Mixolydian Functions" >>>;
+
+// global variables
+int n[];                    // MIDI note array
+int rest;
+float l[];                  // Note length array
+float p[];                  // Sound pitch array
+TriOsc chord[3];            // Three triangle wave oscillators for chords
+Pan2 pan[3];                // Three panners for the chords
+SinOsc bass;                // One sine wave oscillator for bass
+SawOsc melody;              // One sawtooth wave oscillator for melody
+Pan2 panMelody;             // A panner for the melody
+SndBuf monoBuffers[];       // Mono sound buffer array
+Pan2 monoPanners[];         // Mono sound panner array
+SndBuf2 stereoBuffers[];    // Stereo sound buffer array
+time start;                 // A timestamp set when a sequence starts playing
+
+// this is the main part of the program
+init();
+play();
+
+// initialise the resources
+fun void init()
+{
+    // seed the random number generator
+    Std.srand(42);
+    
+    // initialise the notes, chords and sound buffers
+    initNotes();
+    initChords();
+    initSoundBuffers();
+}
+
+// play the sequence
+fun void play()
+{
+    // set the timestamp
+    now => start;
+    
+    // bar 1
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[12]);
+    playChord(10, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(rest, "melody", l[1]);
+    playSound(7, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(n[8], "bass", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(7, "mono", 1);    
+    playNote(n[2], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // bar 2
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(12, "arpeggio", l[1]); 
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(9, "mono", 1);
+    playSound(18, "mono", 1);    
+    playChord(6, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[12], "bass", l[0]);
+    playNote(n[11], "bass", l[0]);
+    playSound(7, "mono", 1);    
+    playNote(n[12], "bass", l[1]);
+    // bar 3
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[9]);
+    playChord(12, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(rest, "melody", l[1]);
+    playSound(7, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(n[8], "bass", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(7, "mono", 1);    
+    playNote(n[2], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // bar 4
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(12, "arpeggio", l[1]); 
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(9, "mono", 1);
+    playSound(18, "mono", 1);    
+    playChord(6, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[10], "bass", l[0]);
+    playNote(n[11], "bass", l[0]);
+    playSound(7, "mono", 1);    
+    playSound(12, "mono", 1);
+    playNote(n[12], "bass", l[1]);
+    // bar 5
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", 1);
+    playChord(10, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(7, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(rest, "melody", l[1]);
+    playSound(7, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(n[8], "bass", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(7, "mono", 1);    
+    playNote(n[2], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // bar 6
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(12, "arpeggio", l[1]); 
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(9, "mono", 1);
+    playSound(16, "mono", 1);    
+    playChord(6, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[12], "bass", l[0]);
+    playNote(n[11], "bass", l[0]);
+    playSound(7, "mono", 1);    
+    playNote(n[12], "bass", l[1]);
+    // bar 7
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[9]);
+    playChord(12, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(7, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(rest, "melody", l[1]);
+    playSound(7, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(n[8], "bass", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(7, "mono", 1);
+    playSound(0, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[2], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // bar 8
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(12, "arpeggio", l[1]); 
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 2
+    playSound(9, "mono", 1);
+    playSound(16, "mono", 1);    
+    playChord(6, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(10, "rest", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playNote(n[14], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[10], "bass", l[0]);
+    playNote(n[11], "bass", l[0]);
+    playSound(7, "mono", 1);
+    playSound(0, "mono", 1);    
+    playSound(12, "mono", 1);
+    playNote(n[12], "bass", l[1]);
+    // bar 9
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[5]);
+    playChord(5, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(7, "rest", l[1]);
+    // beat 2
+    playSound(9, "mono", 1);
+    playSound(16, "mono", 1);
+    playChord(12, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(7, "rest", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(5, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(7, "rest", l[1]);
+     // beat 4
+    playSound(9, "mono", 1);
+    playSound(16, "mono", 1);
+    playChord(12, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(7, "rest", l[1]);
+    // bar 10
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[7]);
+    playChord(7, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(9, "rest", l[1]);
+     // beat 2
+    playSound(9, "mono", 1);
+    playSound(16, "mono", 1);
+    playChord(14, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(9, "rest", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(7, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(9, "rest", l[1]);
+     // beat 4
+    playSound(9, "mono", 1);
+    playSound(16, "mono", 1);
+    playChord(14, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playChord(9, "rest", l[1]);       
+    // bar 11
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[12]);
+    playNote(n[12], "bass", l[1]);
+    playSound(7, "mono", 1);
+    playNote(n[11], "bass", l[1]);
+    // beat 2
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[10], "bass", l[1]);
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[9], "bass", l[1]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(12, "arpeggio", l[1]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playChord(12, "rest", l[1]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // bar 12
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(7, "mono", 1); 
+    playSound(12, "mono", 1);   
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // beat 2
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // beat 3
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);   
+    playNote(n[9], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // beat 4
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    playSound(7, "mono", 1);
+    playSound(18, "mono", 1);
+    playNote(n[16], "melody", l[0]);
+    playNote(rest, "melody", l[0]);
+    // bar 13
+    // beat 1
+    playSound(7, "mono", 1);
+    playSound(12, "mono", 1);
+    playSound(2, "stereo", p[12]);
+    playNote(n[2], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    playSound(10, "mono", 1);
+    playNote(n[2], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+    // beat 2
+    playSound(0, "mono", 1);
+    playSound(6, "mono", 1);
+    playNote(n[11], "bass", l[0]);
+    playSound(0, "mono", 1);
+    playSound(16, "mono", 1);
+    playNote(n[10], "bass", l[0]);
+    playSound(0, "mono", 1);
+    playSound(6, "mono", 1);
+    playSound(7, "mono", 1);
+    playNote(n[11], "bass", l[0]);
+    playNote(rest, "bass", l[0]);
+}
+
+fun void initNotes()
+{
+    // an array of MIDI notes for Eb myxolydian mode
+    // Eb1, F1, G1, Ab1, Bb1, C2, Db2
+    // Eb2, F2, G2, Ab2, Bb2, C3, Db3
+    // Eb3, F3, G3, Ab3, Bb3, C4, Db4
+    // Eb4, F4, G4, Ab4, Bb4, C5, Db5
+    // Eb5, F5, G5, Ab5, Bb5, C6, Db6
+    [
+        27, 29, 31, 32, 34, 36, 37,
+        39, 41, 43, 44, 46, 48, 49,
+        51, 53, 55, 56, 58, 60, 61,
+        63, 65, 67, 68, 70, 72, 73,
+        75, 77, 79, 80, 82, 84, 85
+    ] @=> n;
+    
+     // define a rest note value
+    -1 => rest;
+    
+    // allocate some note lengths
+    100.0 => float bpm; // beats per minute for 0.6 second beats
+
+    // semi-quaver, quaver, crotchet, minim, semibreve, breve
+    [15/bpm, 30/bpm, 60/bpm, 120/bpm, 240/bpm, 480/bpm] @=> l;
+    
+    bass => dac;
+    melody => panMelody => dac;
+    
+    0.0 => bass.freq;
+    0.0 => melody.freq;
+    
+    0.25 => bass.gain;
+    0.025 => melody.gain;
+    
+    <<< "init()", n.cap(), "notes,", l.cap(), "lengths" >>>;
+}
+
+fun void initChords()
+{
+    // initialise an array of oscillators for chords and arpeggios
+    for(0 => int i; i < chord.cap(); i++)
+    {
+        chord[i] => pan[i] => dac;
+        0.35 / chord.cap() => chord[i].gain;
+    }    
+}
+
+fun void initSoundBuffers()
+{
+    // create an array of mono wavefile paths
+    [
+        me.dir() + "/audio/clap_01.wav",    // 0 handclap
+        me.dir() + "/audio/click_01.wav",   // 1
+        me.dir() + "/audio/click_02.wav",   // 2
+        me.dir() + "/audio/click_03.wav",   // 3
+        me.dir() + "/audio/click_04.wav",   // 4
+        me.dir() + "/audio/click_05.wav",   // 5
+        me.dir() + "/audio/cowbell_01.wav", // 6 cowbell
+        me.dir() + "/audio/hihat_01.wav",   // 7 closed hihat
+        me.dir() + "/audio/hihat_02.wav",   // 8
+        me.dir() + "/audio/hihat_03.wav",   // 9
+        me.dir() + "/audio/hihat_04.wav",   // 10 open hihat
+        me.dir() + "/audio/kick_01.wav",    // 11
+        me.dir() + "/audio/kick_02.wav",    // 12 
+        me.dir() + "/audio/kick_03.wav",    // 13 acoustic kick
+        me.dir() + "/audio/kick_04.wav",    // 14
+        me.dir() + "/audio/kick_05.wav",    // 15
+        me.dir() + "/audio/snare_01.wav",   // 16 acoustic snare
+        me.dir() + "/audio/snare_02.wav",   // 17
+        me.dir() + "/audio/snare_03.wav"    // 18 sidestick
+    ] @=> string monoWavefiles[];
+
+    // create an array of stereo wavefile paths
+    [
+        me.dir() + "/audio/stereo_fx_01.wav",
+        me.dir() + "/audio/stereo_fx_02.wav",
+        me.dir() + "/audio/stereo_fx_03.wav",
+        me.dir() + "/audio/stereo_fx_04.wav",
+        me.dir() + "/audio/stereo_fx_05.wav"
+    ] @=> string stereoWavefiles[];
+
+    // allocate arrays of mono and stereo sound buffers
+    SndBuf mb00; SndBuf mb01; SndBuf mb02; SndBuf mb03; SndBuf mb04;
+    SndBuf mb05; SndBuf mb06; SndBuf mb07; SndBuf mb08; SndBuf mb09;
+    SndBuf mb10; SndBuf mb11; SndBuf mb12; SndBuf mb13; SndBuf mb14;
+    SndBuf mb15; SndBuf mb16; SndBuf mb17; SndBuf mb18;
+    
+    Pan2 mp00; Pan2 mp01; Pan2 mp02; Pan2 mp03; Pan2 mp04;
+    Pan2 mp05; Pan2 mp06; Pan2 mp07; Pan2 mp08; Pan2 mp09;
+    Pan2 mp10; Pan2 mp11; Pan2 mp12; Pan2 mp13; Pan2 mp14;
+    Pan2 mp15; Pan2 mp16; Pan2 mp17; Pan2 mp18;
+    
+    SndBuf2 sb00; SndBuf2 sb01; SndBuf2 sb02; SndBuf2 sb03; SndBuf2 sb04;
+    
+    [
+        mb00, mb01, mb02, mb03, mb04, mb05, mb06, mb07, mb08, mb09,
+        mb10, mb11, mb12, mb13, mb14, mb15, mb16, mb17, mb18
+    ] @=> monoBuffers;
+
+    [
+        mp00, mp01, mp02, mp03, mp04, mp05, mp06, mp07, mp08, mp09,
+        mp10, mp11, mp12, mp13, mp14, mp15, mp16, mp17, mp18
+    ] @=> monoPanners;
+    
+    [
+        sb00, sb01, sb02, sb03, sb04
+    ] @=> stereoBuffers;
+    
+    // initialise each mono buffer
+    for (0 => int i; i < monoWavefiles.cap(); i++)
+    {
+        monoBuffers[i] => monoPanners[i] => dac;
+        monoWavefiles[i] => monoBuffers[i].read;
+        monoBuffers[i].samples() => monoBuffers[i].pos;
+
+        // set the handclap gain and pan
+        if(i == 0)
+        {
+            0.25 => monoBuffers[i].gain;
+            0.6 => monoPanners[i].pan;
+        }
+        
+        // set the cowbell gain and pan
+        if(i == 6)
+        {
+            0.15 => monoBuffers[i].gain;
+            -0.6 => monoPanners[i].pan;
+        }
+        
+        // set the hihat gains and pans
+        if(i >= 7 && i <= 10)
+        {
+            0.05 => monoBuffers[i].gain;
+            0.4 => monoPanners[i].pan;
+        }
+        
+        // set the kick gains
+        if(i >= 11 && i <= 15)
+            0.35 => monoBuffers[i].gain;
+        
+        // set the snare gains and pans
+        if(i >= 16 && i <= 17)
+        {
+            0.5 => monoBuffers[i].gain;
+            -0.4 => monoPanners[i].pan;
+        }
+        
+        // set the sidestick gain and pan
+        if(i == 18)
+        {
+            0.25 => monoBuffers[i].gain;
+            -0.4 => monoPanners[i].pan;
+        }
+    }
+
+    // initialise each stereo buffer
+    for (0 => int i; i < stereoWavefiles.cap(); i++)
+    {
+        stereoBuffers[i] => dac;
+        stereoWavefiles[i] => stereoBuffers[i].read;
+        stereoBuffers[i].samples() => stereoBuffers[i].pos;
+        0.3 => stereoBuffers[i].gain;
+    }
+    
+    <<< "initSoundBuffers()", monoWavefiles.cap(), "mono,", stereoWavefiles.cap(), "stereo" >>>;
+    
+    // allocate some chromatic intervals, calculated using the 12th root of 2,
+    // these can be used to set the rate of a sound buffer
+    Math.pow(2, 0.0833333333) => float c12r2;
+    
+[
+    0.5,                        // 0
+    1.0 / Math.pow(c12r2, 11),  // 1
+    1.0 / Math.pow(c12r2, 10),  // 2
+    1.0 / Math.pow(c12r2, 9),   // 3
+    1.0 / Math.pow(c12r2, 8),   // 4
+    1.0 / Math.pow(c12r2, 7),   // 5
+    1.0 / Math.pow(c12r2, 6),   // 6
+    1.0 / Math.pow(c12r2, 5),   // 7
+    1.0 / Math.pow(c12r2, 4),   // 8
+    1.0 / Math.pow(c12r2, 3),   // 9
+    1.0 / Math.pow(c12r2, 2),   // 10
+    1.0 / c12r2,                // 11
+    1.0,                        // 12
+    c12r2,                      // 13
+    Math.pow(c12r2, 2),         // 14
+    Math.pow(c12r2, 3),         // 15
+    Math.pow(c12r2, 4),         // 16
+    Math.pow(c12r2, 5),         // 17
+    Math.pow(c12r2, 6),         // 18
+    Math.pow(c12r2, 7),         // 19
+    Math.pow(c12r2, 8),         // 20
+    Math.pow(c12r2, 9),         // 21
+    Math.pow(c12r2, 10),        // 22
+    Math.pow(c12r2, 11),        // 23
+    2.0                         // 24
+] @=> p;
+    
+    // for(0 => int i; i < p.cap(); i++)
+    //    <<< p[i] >>>;
+}
+
+fun void playNote(int note, string type, float duration)
+{
+    // play the designated note
+    if(type == "bass")
+    {
+        if(note == rest)
+        {
+            0 => bass.freq;
+        }
+        else
+        {
+            note => Math.mtof => bass.freq;
+        }
+    }
+    else if(type == "melody")
+    {
+        if(note == rest)
+        {
+            0 => melody.freq;
+        }
+        else
+        {
+            Math.random2f(-0.5, 0.5) => panMelody.pan;
+            note => Math.mtof => melody.freq;
+        }
+    }
+    else
+    {
+        <<< "playNote(", note, type, ") unknown type" >>>;
+    }
+    
+    duration::second => now;
+    
+    // once the note has finished playing, make it inaudible
+    if(type == "bass")
+    {
+        0 => bass.freq;
+    }
+    else if(type == "melody")
+    {
+        0 => melody.freq;
+    }
+    
+    // print a timestamp
+    now - start => dur elapsed;
+    <<< elapsed / second, "playNote(", note, type, ")" >>>;
+}
+
+fun void playChord(int root, string type, float duration)
+{
+    // create a triad of MIDI notes
+    [root,root + 2,root + 4] @=> int triad[];    
+    if(type == "arpeggio")
+    {
+        // play the notes individually, up and down the triad
+        Math.random2f(-1, 1) => pan[0].pan;
+        for (0 => int i; i < chord.cap(); i++)
+        {
+            0 => chord[i].freq;
+        }
+            
+        for (0 => int i; i < chord.cap() - 1; i++)
+        {
+            n[triad[i]] => Math.mtof => chord[0].freq;
+
+            duration::second / ((chord.cap() - 1) * 2) => now;
+        }
+        
+        for (chord.cap() - 1 => int i; i > 0; i--)
+        {  
+            n[triad[i]] => Math.mtof => chord[0].freq;
+            duration::second / ((chord.cap() - 1) * 2) => now;
+        }
+    }
+    else if(type == "rest")
+    {
+        // play a rest
+        for (0 => int j; j < 3; j++)
+        {
+            0 => chord[j].freq;
+        }
+
+        duration::second => now;        
+    }
+    else if(type == "chord")
+    {
+        // play the chord
+        for (0 => int i; i < chord.cap(); i++)
+        {
+            Math.random2f(-1, 1) => pan[i].pan;
+            n[triad[i]] => Math.mtof => chord[i].freq;
+        }
+
+        duration::second => now;        
+    }
+    else
+    {
+        <<< "playChord(", root, type, ") unknown type" >>>;        
+    }
+      
+    // print a timestamp
+    now - start => dur elapsed;
+    <<< elapsed / second, "playChord(", root, type, ")" >>>;
+}
+
+fun void playSound(int sound, string type, float rate)
+{
+    // play the sound in the designated sound buffer
+    if(type == "mono")
+    {
+        rate => monoBuffers[sound].rate;
+        if(sound < 0)
+        {
+            monoBuffers[sound].samples() => monoBuffers[sound].pos;
+        }
+        else if(sound < monoBuffers.cap())
+        {
+            if(rate >= 0)
+                0 => monoBuffers[sound].pos;
+            else
+                monoBuffers[sound].samples() => monoBuffers[sound].pos;
+        }
+        else
+            <<< "playSound(", sound, type, ") exceeds monoBuffers.cap()" >>>;
+    }
+    else if (type == "stereo")
+    {
+        rate => stereoBuffers[sound].rate;
+        if(sound < 0)
+        {
+            stereoBuffers[sound].samples() => stereoBuffers[sound].pos;
+        }
+        else if(sound < stereoBuffers.cap())
+        {
+            if(rate >= 0)
+                0 => stereoBuffers[sound].pos;
+            else
+                stereoBuffers[sound].samples() => stereoBuffers[sound].pos;
+        }
+        else
+            <<< "playSound(", sound, type, ") exceeds stereoBuffers.cap()" >>>;
+    }
+    else
+    {
+        <<< "playSound(", sound, type, ") unknown type" >>>;
+    }
+    
+    // print a timestamp
+    now - start => dur elapsed;
+    <<< elapsed / second, "playSound(", sound, type, ")" >>>;
+}Enter file contents here
