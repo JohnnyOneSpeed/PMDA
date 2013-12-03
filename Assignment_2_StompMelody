@@ -1,0 +1,88 @@
+<<< "Assignment 2 StompMelody" >>>;
+
+// create a sawtooth oscillator, with a panner
+SawOsc s => Pan2 p => dac;
+
+// allocate the available notes
+// D2, E2, F2, G2, A2, B2, C3
+// D3, E3, F3, G3, A3, B3, C4
+// D4, E4, F4, G4, A4, B4, C5
+[38, 40, 41, 43, 45, 47, 48,
+ 50, 52, 53, 55, 57, 59, 60,
+ 62, 64, 65, 67, 69, 71, 72] @=> int n[];
+ 
+ // define a rest note value
+-1 => int rest;
+
+// allocate some note lengths
+// quaver, crotchet, minim, semibreve, breve
+[0.0625, .125, .25, .5, 1.0] @=> float l[];
+
+// create arrays of notes and their respective lengths
+[n[3],n[4],rest,n[4],rest,n[5],rest,n[4],rest,n[3],n[4],rest,n[1],rest,n[3],rest,
+ n[3],n[4],rest,n[4],rest,n[5],rest,n[4],rest,n[3],n[4],rest,n[4],rest,n[3],rest,n[4],rest,
+ n[10],n[11],rest,n[11],rest,n[12],rest,n[11],rest,n[10],n[11],rest,n[8],rest,n[10],rest,
+ n[10],n[11],rest,n[11],rest,n[12],rest,n[11],rest,n[10],n[11],rest,n[18],rest,n[17],rest,n[18],rest,
+ n[3],n[4],rest,n[4],rest,n[4],rest,n[4],rest,n[3],n[2],rest,n[1],rest,n[3],rest,
+ n[3],n[4],rest,n[4],rest,n[5],rest,n[4],rest,n[3],n[4],rest,n[4],rest,n[3],rest,n[4],rest,
+ n[10],n[11],rest,n[11],rest,n[11],rest,n[11],rest,n[10],n[9],rest,n[8],rest,n[10],rest,
+ n[10],n[11],rest,n[11],rest,n[12],rest,n[11],rest,n[10],n[11],rest,n[4],rest,n[3],rest,n[4],rest,
+ n[3],n[4],rest,n[4],rest,n[5],rest,n[4],rest,n[3],n[4],rest,n[1],rest,n[3],rest,
+ n[3],n[4],rest,n[4],rest,n[5],rest,n[4],rest,n[3],n[4],rest,n[4],rest,n[3],rest,n[4],rest,
+ n[10],n[11],rest,n[11],rest,n[12],rest,n[11],rest,n[10],n[11],rest,n[8],rest,n[10],rest,
+ n[10],n[11],rest,n[11],rest,n[12],rest,n[11],rest,n[10],n[11],rest,n[18],rest,n[17],rest,n[18],rest,
+ n[3],n[4],rest,n[4],rest,n[4],rest,n[4],rest,n[3],n[2],rest,n[1],rest,n[3],rest,
+ n[3],n[4],rest,n[4],rest,n[5],rest,n[4],rest,n[3],n[4],rest,n[4],rest,n[3],rest,n[4],rest,
+ n[10],n[11],rest,n[11],rest,n[10],rest,n[10],rest,n[11],n[10],rest,n[18],rest,n[18],rest]
+    @=> int seq[];
+[l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+  l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[0],l[0],l[0],l[0],l[1],l[1],
+ l[2],l[1],l[1],l[1],l[1],l[0],l[0],l[0],l[0],l[2],l[1],l[1],l[1],l[1],l[1],l[1]]
+    @=> float len[];
+
+// check that the sequence and length arrays are the same size
+if(seq.cap() == len.cap())
+{
+    // loop through the sequence
+    now => time start;
+    for(0 => int i; i < seq.cap(); i++)
+    {
+        if(seq[i] == -1)
+        {
+            // configure a rest
+            0 => s.gain;
+        }
+        else
+        {
+            // configure a note, randomly panned
+            0.6 => s.gain;
+            Std.mtof(seq[i]) => s.freq;
+            Math.random2f(-1, 1) => p.pan;
+        }
+        
+        // play the note
+        len[i]::second => now;
+        
+        // print the note properties
+        now - start => dur elapsed;
+        <<< "i=" + i, "note=" + seq[i], "time=", elapsed / second >>>;
+    }
+}
+else
+{
+    <<< "seq.cap(", seq.cap(), ") != len.cap(" + len.cap() + ")" >>>;
+    .5::second => now;
+}
+Enter file contents here
