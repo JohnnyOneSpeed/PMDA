@@ -1,0 +1,130 @@
+// Author: ???
+// Date: 27/10/2013
+
+<<< "Assignment_1_Assault" >>>;
+
+// Set the variable values
+22.5 => float A0;
+110 => float A2;
+220 => float A3;
+440 => float A4;
+6240 => float A8;
+
+103.826 => float Ab2;
+116.541 => float Bb2;
+130.813 => float C3;
+138.591 => float Db3;
+174.614 => float F3;
+233.082 => float Bb3;
+932.328 => float Bb5;
+
+0.6 => float vol;
+1::ms => dur span;
+
+2 => int loops;
+8 => int bars;
+
+// Create the oscillators
+SinOsc s => NRev rs => dac;
+TriOsc t => dac;
+SawOsc w => NRev rw => dac;
+
+0.1 => rs.mix;
+0.2 => rw.mix;
+
+// Create the sequences
+[ Bb2, Bb2, Db3, Db3, Ab2, Ab2, Bb2, Bb2 ] @=> float sequence1[];
+[ Db3, Db3, F3, F3, C3, C3, Db3, Db3 ] @=> float sequence2[];
+
+// Play the sequence
+// The sequence is 8 bars of 4/4, looped twice.
+// In the second loop, there is a high 'string' sound.
+// In each bar, there are two 'kicks' and a 'snare'.
+// The notes to play are read from the sequences.
+
+Bb5 => w.freq;
+// play the eight bar sequence twice
+for(0 => int k; k < loops; k++)
+{
+    if(k > 0)
+    {
+       vol / 18 => w.gain;
+    }
+    else
+    {
+       0 => w.gain; 
+    }
+    
+    // play the eight bars
+    for(0 => int j; j < bars; j++)
+    {
+        if(j % 2)
+        {
+            0 => t.gain;
+        }
+        else
+        {
+            vol / 2 => t.gain;
+        }
+        
+        sequence1[j] => t.freq;
+        
+        // kick 1
+        vol => s.gain;
+        for(0 => int i; i < 100; i++)
+        {
+            Math.random2f(A0, A3) => s.freq;
+            span => now;
+        }
+
+        // stop the kick sound, and continue the first note
+        0 => s.gain;
+        span * 350 => now;
+
+        // kick 2
+        vol => s.gain;    
+        for(0 => int i; i < 100; i++)
+        {
+            Math.random2f(A0, A3) => s.freq;
+            span => now;
+        }
+
+        // stop the kick sound, and play the next two notes
+        0 => s.gain;
+        for(0 => int i; i < 2; i++)
+        {
+            span * 150 => now;
+            0 => t.gain;
+            span * 25 => now;
+            if (j % 2){}else
+            {
+                vol / 2 => t.gain;
+            }
+        }   
+        
+        // snare
+        vol / 3 => s.gain;
+        sequence2[j] => t.freq;
+        for(0 => int i; i < 50; i++)
+        {
+            Math.random2f(A4, A8) => s.freq;
+            span => now;
+        }
+        
+        // stop the snare, and play the last notes of the bar
+        
+        0 => s.gain;
+        span * 100 => now;
+        0 => t.gain;
+        span * 100 => now;
+        
+        sequence1[j] => t.freq;
+        if (j % 2){}else
+        {
+            vol / 2 => t.gain;
+        }
+        span * 500 => now;
+        0 => t.gain;
+        span * 100 => now;
+    }
+}Enter file contents here
